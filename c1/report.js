@@ -35,6 +35,23 @@
   const vitals = (v) => [['visit.bp', v.bp], ['visit.pulse', v.pulse], ['visit.temp', v.temp], ['visit.weight', v.weight], ['visit.height', v.height]]
     .filter(([, val]) => val).map(([k, val]) => `<span><b>${esc(t(k))}</b> ${esc(val)}</span>`).join('');
 
+  // Lab / imaging / prescription by date, like the Excel sheet. A4 fits about 6 dates per table.
+  function resultsGrid() {
+    const rows = [
+      ...LAB_TESTS.map(([k, label]) => [t('tpl.lab'), label, (v) => (v.labs || {})[k]]),
+      ...RADIO_ITEMS.map(([k, label]) => [t('tpl.radio'), label || t('tpl.other'), (v) => (v.radio || {})[k]]),
+      [t('tpl.prescription'), t('tpl.prescription'), (v) => v.treatment],
+    ].filter(([, , get]) => chronological.some((v) => get(v)));
+    if (!rows.length) return '';
+    const chunks = [];
+    for (let i = 0; i < chronological.length; i += 6) chunks.push(chronological.slice(i, i + 6));
+    return `<section><h2>${esc(t('tpl.lab'))} · ${esc(t('tpl.radio'))} · ${esc(t('tpl.prescription'))}</h2>` + chunks.map((vs) => `
+      <table class="grid"><thead><tr><th></th>${vs.map((v) => `<th>${esc(fmtDay(v.date, { day: '2-digit', month: '2-digit', year: '2-digit' }))}</th>`).join('')}</tr></thead>
+      <tbody>${rows.filter(([, , get]) => vs.some((v) => get(v))).map(([sec, label, get], i, arr) =>
+        (i === 0 || arr[i - 1][0] !== sec ? `<tr class="sec"><th colspan="${vs.length + 1}">${esc(sec)}</th></tr>` : '') +
+        `<tr><th>${esc(label)}</th>${vs.map((v) => `<td>${multiline(get(v) || '')}</td>`).join('')}</tr>`).join('')}</tbody></table>`).join('') + '</section>';
+  }
+
   sheet.innerHTML = `
     <header class="letterhead">
       <div>
@@ -61,6 +78,7 @@
         ${kv(t('patient.blood_type'), p.blood_type)}
         ${kv(t('patient.profession'), p.profession)}
         ${kv(t('patient.phone'), p.phone)}
+        ${kv(t('patient.tiers_payant'), p.tiers_payant)}
         ${kv(t('patient.address'), p.address)}
       </dl>
     </section>
@@ -68,15 +86,14 @@
     ${p.allergies ? `<div class="allergy">⚠ <b>${esc(t('patient.allergies'))} :</b> ${multiline(p.allergies)}</div>` : ''}
 
     <section>
-      <h2>${esc(t('patient.summary'))}</h2>
+      <h2>${esc(t('patient.section.history'))}</h2>
       <dl>
-        ${kv(t('patient.conditions'), p.conditions)}
-        ${kv(t('patient.surgical_history'), p.surgical_history)}
-        ${kv(t('patient.family_history'), p.family_history)}
-        ${kv(t('patient.medications'), p.medications)}
+        ${HISTORY_ITEMS.map((h) => kv(h[1], historyValue(p, h))).join('')}
         ${kv(t('patient.notes'), p.notes)}
       </dl>
     </section>
+
+    ${resultsGrid()}
 
     <section>
       <h2>${esc(t('patient.visits'))} <small>${esc(t('report.visit_count', { n: visits.length }))}</small></h2>
@@ -85,7 +102,7 @@
           <div class="vhead"><span class="vdate">${esc(fmtDay(v.date, { day: '2-digit', month: '2-digit', year: 'numeric' }))}</span>
             ${v.reason ? `<span class="vreason">${esc(v.reason)}</span>` : ''}</div>
           ${vitals(v) ? `<div class="vitals">${vitals(v)}</div>` : ''}
-          <dl>${kv(t('visit.exam'), v.exam)}${kv(t('visit.diagnosis'), v.diagnosis)}${kv(t('visit.treatment'), v.treatment)}${kv(t('visit.notes'), v.notes)}</dl>
+          <dl>${kv(t('visit.exam'), v.exam)}${kv(t('visit.diagnosis'), v.diagnosis)}${kv(t('tpl.prescription'), v.treatment)}${kv(t('visit.notes'), v.notes)}</dl>
         </div>`).join('') || `<p class="muted">${esc(t('patient.no_visits'))}</p>`}
     </section>
 

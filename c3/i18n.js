@@ -1,6 +1,23 @@
 'use strict';
 // French / English strings + date helpers, shared by the app and the printable report.
 
+// The doctor's own sheet (Excel template): HISTOIRE | LABORATOIRE | RADIO | PRESCRIPTION, labels as she writes them.
+// History: the first six live in patients.history (JSON); the last four reuse the original patient columns.
+const HISTORY_ITEMS = [
+  ['smoking', 'Smoking'], ['diabetes', 'Diabetes'], ['hta', 'HTA'], ['lipids', 'Lipids'], ['thyroid', 'Thyroid'], ['bone', 'Bone'],
+  ['psh', 'PSH', 'surgical_history'], ['pmh', 'PMH', 'conditions'], ['family', 'Family H.', 'family_history'], ['drugs', 'Drugs', 'medications'],
+];
+const historyValue = (p, [key, , col]) => (col ? p[col] : (p.history || {})[key]) || '';
+// Lab results are stored per consultation in visits.labs (JSON: key -> result), in the sheet's order.
+const LAB_TESTS = [
+  ['cbc', 'CBC'], ['esr', 'ESR'], ['glucose', 'Glucose'], ['hba1c', 'HbA1c'], ['ct', 'CT'], ['tg', 'TG'], ['hdl', 'HDL'],
+  ['ldl', 'LDL'], ['creat', 'Créatinine'], ['uree', 'Urée'], ['k', 'K⁺'], ['sgpt', 'SGPT'], ['sgot', 'SGOT'],
+  ['ck', 'CK'], ['ca', 'Ca'], ['vitd', '25OHD3'], ['b12', 'Vit B12'], ['tsh', 'TSH'], ['ft4', 'FT4'], ['urine', 'Urine'],
+  ['acr', 'ACR'], ['us_thyroid', 'US Thyroïde'], ['us_abdo', 'US Abdomen'], ['renin', 'Rénine'], ['aldo', 'Aldostérone'],
+  ['catech', 'Catécholamines'],
+];
+const RADIO_ITEMS = [['mri', 'MRI'], ['other', null]];   // null label -> t('tpl.other')
+
 const I18N = {
   fr: {
     'app.name': 'Cabinet Médical',
@@ -33,7 +50,12 @@ const I18N = {
     'visit.title': 'Consultation', 'visit.date': 'Date', 'visit.reason': 'Motif', 'visit.vitals': 'Constantes',
     'visit.bp': 'Tension (mmHg)', 'visit.pulse': 'Pouls (bpm)', 'visit.temp': 'Temp. (°C)', 'visit.weight': 'Poids (kg)',
     'visit.height': 'Taille (cm)', 'visit.exam': 'Examen clinique', 'visit.diagnosis': 'Diagnostic',
-    'visit.treatment': 'Traitement / prescription', 'visit.notes': 'Notes',
+    'visit.treatment': 'Prescription', 'visit.notes': 'Notes',
+    'patient.tiers_payant': 'Tiers payant', 'patient.section.history': 'Histoire', 'patient.section.other': 'Autres informations',
+    'tpl.lab': 'Laboratoire', 'tpl.radio': 'Radio', 'tpl.prescription': 'Prescription', 'tpl.other': 'Autre',
+    'patient.followup': 'Suivi', 'patient.followup_hint': 'Laboratoire, radio et prescription de chaque consultation. Touchez une valeur pour la modifier.',
+    'patient.show_all_rows': 'Toutes les lignes', 'patient.show_filled_rows': 'Lignes remplies',
+    'patient.no_followup': 'Aucun résultat pour le moment. Ajoutez une consultation avec ses analyses, radios et prescription.',
     'appt.title': 'Rendez-vous', 'appt.patient': 'Patient', 'appt.patient_search': 'Chercher un patient…',
     'appt.no_patient': 'Sans dossier (saisir le nom dans le motif)', 'appt.change': 'Changer',
     'appt.date': 'Date', 'appt.time': 'Heure', 'appt.duration': 'Durée', 'appt.minutes': 'min',
@@ -98,7 +120,12 @@ const I18N = {
     'visit.title': 'Consultation', 'visit.date': 'Date', 'visit.reason': 'Reason', 'visit.vitals': 'Vitals',
     'visit.bp': 'Blood pressure (mmHg)', 'visit.pulse': 'Pulse (bpm)', 'visit.temp': 'Temp. (°C)', 'visit.weight': 'Weight (kg)',
     'visit.height': 'Height (cm)', 'visit.exam': 'Clinical exam', 'visit.diagnosis': 'Diagnosis',
-    'visit.treatment': 'Treatment / prescription', 'visit.notes': 'Notes',
+    'visit.treatment': 'Prescription', 'visit.notes': 'Notes',
+    'patient.tiers_payant': 'Third-party payer', 'patient.section.history': 'History', 'patient.section.other': 'Other information',
+    'tpl.lab': 'Laboratory', 'tpl.radio': 'Imaging', 'tpl.prescription': 'Prescription', 'tpl.other': 'Other',
+    'patient.followup': 'Follow-up', 'patient.followup_hint': 'Labs, imaging and prescription from each consultation. Tap a value to edit it.',
+    'patient.show_all_rows': 'All rows', 'patient.show_filled_rows': 'Filled rows',
+    'patient.no_followup': 'No results yet. Add a consultation with its labs, imaging and prescription.',
     'appt.title': 'Appointment', 'appt.patient': 'Patient', 'appt.patient_search': 'Search a patient…',
     'appt.no_patient': 'No file (type the name in the reason)', 'appt.change': 'Change',
     'appt.date': 'Date', 'appt.time': 'Time', 'appt.duration': 'Duration', 'appt.minutes': 'min',

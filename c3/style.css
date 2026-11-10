@@ -115,7 +115,7 @@ body:not(.authed) .topbar { justify-content: space-between; }
 .grid.one { grid-template-columns: 1fr; }
 @media (max-width: 600px) { .grid { grid-template-columns: 1fr; } }
 .field { display: grid; gap: .3rem; }
-.field.full { grid-column: 1 / -1; }
+.field.full, .grid > fieldset.full { grid-column: 1 / -1; }
 .field > span { font-size: .8rem; font-weight: 600; color: var(--muted); }
 input, select, textarea {
   width: 100%; font: inherit; font-size: 16px; color: var(--text); background: var(--surface-2);
@@ -227,3 +227,31 @@ dialog::backdrop { background: rgba(15, 23, 42, .45); backdrop-filter: blur(2px)
 }
 .toast.show { opacity: 1; transform: translate(-50%, 0); }
 .toast.err { background: var(--danger); color: #fff; }
+
+/* ---------- the doctor's sheet: history, labs, follow-up grid ---------- */
+.followup-card { margin-top: 1rem; }
+.followup-card .hint { margin: .15rem 0 0; }
+.followup-card .card-head { flex-wrap: wrap; }
+.followup-card .card-head > div:first-child { flex: 1 1 260px; }
+.followup-card .seg { flex-wrap: wrap; }
+table.fu .fu-sec th span { position: sticky; left: .6rem; }
+fieldset.tpl-block { border: 1px solid var(--line); border-radius: 12px; padding: .7rem; margin: 0; }
+fieldset.tpl-block legend { font-size: .8rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--accent); padding: 0 .3rem; }
+.lab-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .5rem .7rem; }
+.lab-grid input { min-height: 34px; padding: .3rem .5rem; }
+@media (max-width: 600px) { .lab-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+table.hist { width: 100%; border-collapse: collapse; }
+table.hist th { text-align: left; width: 34%; font-size: .78rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .03em; padding: .4rem .5rem .4rem 0; vertical-align: top; }
+table.hist td { padding: .4rem 0; border-bottom: 1px solid var(--line); }
+table.hist tr:last-child td { border-bottom: 0; }
+.summary.extra { margin-top: .8rem; }
+.summary.extra:empty { display: none; }
+.fu-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; border: 1px solid var(--line); border-radius: 10px; }
+table.fu { border-collapse: separate; border-spacing: 0; min-width: 100%; font-size: .88rem; }
+table.fu th, table.fu td { padding: .4rem .6rem; border-bottom: 1px solid var(--line); border-right: 1px solid var(--line); text-align: left; vertical-align: top; }
+table.fu thead th { position: sticky; top: 0; background: var(--surface-2); font-weight: 700; white-space: nowrap; }
+table.fu tbody th { position: sticky; left: 0; background: var(--surface); font-weight: 700; white-space: nowrap; z-index: 1; }
+table.fu thead th:first-child { position: sticky; left: 0; z-index: 2; }
+table.fu td { min-width: 110px; cursor: pointer; }
+table.fu td:hover { background: var(--accent-soft); }
+table.fu .fu-sec th { background: var(--accent-soft); color: var(--accent); font-size: .75rem; letter-spacing: .08em; text-transform: uppercase; }

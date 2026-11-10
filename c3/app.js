@@ -33,6 +33,15 @@ function toast(msg, kind = 'ok') {
 const fail = (e) => { if (e.message !== 'auth_required') toast(errText(e), 'err'); };
 const debounce = (fn, ms) => { let id; return (...a) => { clearTimeout(id); id = setTimeout(() => fn(...a), ms); }; };
 const formData = (form) => Object.fromEntries(new FormData(form).entries());
+// "labs.hba1c" style field names -> { labs: { hba1c } } (history, labs and radio are stored as JSON).
+function nest(d) {
+  const out = {};
+  for (const [k, v] of Object.entries(d)) {
+    const [a, b] = k.split('.');
+    if (b) (out[a] ||= {})[b] = v; else out[k] = v;
+  }
+  return out;
+}
 
 // ---------------------------------------------------------------- modal
 function openModal(title, bodyHtml, { onSubmit, onDelete, wide } = {}) {
@@ -95,6 +104,9 @@ function patientRow(p) {
     ${p.allergies ? `<span class="badge alert" title="${esc(p.allergies)}">⚠ ${esc(t('patient.allergy_alert'))}</span>` : ''}
     <span class="chev">›</span></a>`;
 }
+
+// Patients page list. Kept as a function so a design can swap in its own layout.
+function patientList(list) { return list.map(patientRow).join(''); }
 
 function apptRow(a, { showPatient = true, showDate = false } = {}) {
   const who = a.patient_id ? `${(a.last_name || '').toUpperCase()} ${a.first_name || ''}` : '';
@@ -170,7 +182,7 @@ function apptModal({ appt, patient, day, onDone }) {
 }
 
 // ---------------------------------------------------------------- visit modal
-function visitModal({ patientId, visit, onDone }) {
+function visitModal({ patientId, visit, onDone, focus }) {
   const v = visit || { date: ymd(new Date()) };
   const html = `
     <div class="grid">
@@ -183,14 +195,21 @@ function visitModal({ patientId, visit, onDone }) {
         ${field('weight', t('visit.weight'), v.weight, { attrs: 'inputmode="decimal"' })}
         ${field('height', t('visit.height'), v.height, { attrs: 'inputmode="numeric"' })}
       </fieldset>
-      ${area('exam', t('visit.exam'), v.exam, { rows: 3 })}
+      ${area('exam', t('visit.exam'), v.exam, { rows: 2 })}
       ${area('diagnosis', t('visit.diagnosis'), v.diagnosis, { rows: 2 })}
-      ${area('treatment', t('visit.treatment'), v.treatment, { rows: 3 })}
+      <fieldset class="tpl-block full"><legend>${esc(t('tpl.lab'))}</legend>
+        <div class="lab-grid">${LAB_TESTS.map(([k, label]) => field('labs.' + k, label, (v.labs || {})[k])).join('')}</div>
+      </fieldset>
+      <fieldset class="tpl-block full"><legend>${esc(t('tpl.radio'))}</legend>
+        <div class="grid">${RADIO_ITEMS.map(([k, label]) => area('radio.' + k, label || t('tpl.other'), (v.radio || {})[k], { rows: 2, full: false })).join('')}</div>
+      </fieldset>
+      ${area('treatment', t('tpl.prescription'), v.treatment, { rows: 3 })}
       ${area('notes', t('visit.notes'), v.notes, { rows: 2 })}
     </div>`;
   openModal(t('visit.title'), html, {
     wide: true,
-    onSubmit: async (d) => {
+    onSubmit: async (flat) => {
+      const d = nest(flat);
       if (visit) await api('PUT', `/api/visits/${visit.id}`, d);
       else await api('POST', `/api/patients/${patientId}/visits`, d);
       toast(t('common.saved'));
@@ -198,6 +217,7 @@ function visitModal({ patientId, visit, onDone }) {
     },
     onDelete: visit ? async () => { await api('DELETE', `/api/visits/${visit.id}`); onDone?.(); } : null,
   });
+  if (focus) { const el = $(`[name="${focus}"]`, $('#modal')); el?.scrollIntoView({ block: 'center' }); el?.focus(); }
 }
 
 // ---------------------------------------------------------------- views: auth
@@ -306,7 +326,7 @@ async function viewPatients(main) {
     const term = $('#q').value.trim();
     try {
       const list = await api('GET', '/api/patients' + (term ? '?q=' + encodeURIComponent(term) : ''));
-      $('#list').innerHTML = list.map(patientRow).join('') || `<p class="muted pad">${esc(term ? t('home.no_results') : t('patients.empty'))}</p>`;
+      $('#list').innerHTML = list.length ? patientList(list) : `<p class="muted pad">${esc(term ? t('home.no_results') : t('patients.empty'))}</p>`;
       $('#count').textContent = term ? t('patients.count', { n: list.length }) : '';
     } catch (e) { fail(e); }
   };
@@ -333,25 +353,26 @@ async function viewPatientForm(main, id) {
       <div class="grid">
         ${field('last_name', t('patient.last_name'), p.last_name, { attrs: 'required autocapitalize="characters"' })}
         ${field('first_name', t('patient.first_name'), p.first_name, { attrs: 'required autocapitalize="words"' })}
-        ${select('sex', t('patient.sex'), p.sex, sexes)}
         ${field('dob', t('patient.dob'), p.dob, { type: 'date' })}
-        ${field('profession', t('patient.profession'), p.profession)}
-        ${field('file_no', t('patient.file_no'), p.file_no, { attrs: `placeholder="${esc(t('patient.file_no_hint'))}"` })}
-      </div>
-      <h2>${esc(t('patient.section.contact'))}</h2>
-      <div class="grid">
         ${field('phone', t('patient.phone'), p.phone, { type: 'tel' })}
+        ${field('tiers_payant', t('patient.tiers_payant'), p.tiers_payant)}
+        ${select('sex', t('patient.sex'), p.sex, sexes)}
+      </div>
+      <h2>${esc(t('patient.section.history'))}</h2>
+      <div class="grid hist-grid">
+        ${HISTORY_ITEMS.map((h) => {
+          const [key, label, col] = h;
+          return col ? area(col, label, historyValue(p, h), { rows: 2, full: false }) : field('history.' + key, label, historyValue(p, h));
+        }).join('')}
+        ${area('allergies', t('patient.allergies'), p.allergies, { rows: 2 })}
+      </div>
+      <h2>${esc(t('patient.section.other'))}</h2>
+      <div class="grid">
+        ${field('file_no', t('patient.file_no'), p.file_no, { attrs: `placeholder="${esc(t('patient.file_no_hint'))}"` })}
+        ${select('blood_type', t('patient.blood_type'), p.blood_type, bloods)}
+        ${field('profession', t('patient.profession'), p.profession)}
         ${field('email', t('patient.email'), p.email, { type: 'email' })}
         ${area('address', t('patient.address'), p.address, { rows: 2 })}
-      </div>
-      <h2>${esc(t('patient.section.medical'))}</h2>
-      <div class="grid">
-        ${select('blood_type', t('patient.blood_type'), p.blood_type, bloods)}
-        ${area('allergies', t('patient.allergies'), p.allergies, { rows: 2 })}
-        ${area('conditions', t('patient.conditions'), p.conditions)}
-        ${area('surgical_history', t('patient.surgical_history'), p.surgical_history, { rows: 2 })}
-        ${area('family_history', t('patient.family_history'), p.family_history, { rows: 2 })}
-        ${area('medications', t('patient.medications'), p.medications)}
         ${area('notes', t('patient.notes'), p.notes)}
       </div>
       <footer class="form-foot">
@@ -365,7 +386,7 @@ async function viewPatientForm(main, id) {
   const form = $('form', main);
   form.onsubmit = async (ev) => {
     ev.preventDefault();
-    const d = formData(form);
+    const d = nest(formData(form));
     try {
       if (id) { await api('PUT', `/api/patients/${id}`, d); location.hash = `#/patients/${id}`; }
       else { const r = await api('POST', '/api/patients', d); location.hash = `#/patients/${r.id}`; }
@@ -400,6 +421,7 @@ async function viewPatient(main, id) {
           p.sex && esc(t('patient.sex.' + p.sex)),
           p.dob && `${esc(fmtDay(p.dob))} (${age} ${esc(t('common.years'))})`,
           p.blood_type && `🩸 ${esc(p.blood_type)}`,
+          p.tiers_payant && `${esc(t('patient.tiers_payant'))} : ${esc(p.tiers_payant)}`,
         ].filter(Boolean).join(' · ')}</p>
         <p class="contact">${[p.phone && `<a href="tel:${esc(p.phone.replace(/[^\d+]/g, ''))}">📞 ${esc(p.phone)}</a>`,
           p.email && `<a href="mailto:${esc(p.email)}">✉ ${esc(p.email)}</a>`].filter(Boolean).join('')}</p>
@@ -410,6 +432,13 @@ async function viewPatient(main, id) {
       </div>
     </section>
     ${p.allergies ? `<div class="alert-banner">⚠ <b>${esc(t('patient.allergies'))} :</b> ${multiline(p.allergies)}</div>` : ''}
+
+    <section class="card followup-card">
+      <header class="card-head"><div><h2>${esc(t('patient.followup'))}</h2><p class="hint">${esc(t('patient.followup_hint'))}</p></div>
+        <div class="seg"><button class="btn small ghost" id="rows-toggle"></button>
+          <button class="btn small primary" id="new-visit-2">＋ ${esc(t('patient.new_visit'))}</button></div></header>
+      <div id="followup"></div>
+    </section>
 
     <div class="columns wide-left">
       <section class="card">
@@ -422,7 +451,7 @@ async function viewPatient(main, id) {
                 ${v.reason ? `<strong>${esc(v.reason)}</strong>` : ''}
                 <button class="link" data-edit-visit="${v.id}">${esc(t('common.edit'))}</button></header>
               <div class="chips">${vital(t('visit.bp'), v.bp)}${vital(t('visit.pulse'), v.pulse)}${vital(t('visit.temp'), v.temp)}${vital(t('visit.weight'), v.weight)}${vital(t('visit.height'), v.height)}</div>
-              <dl>${info(t('visit.exam'), v.exam)}${info(t('visit.diagnosis'), v.diagnosis)}${info(t('visit.treatment'), v.treatment)}${info(t('visit.notes'), v.notes)}</dl>
+              <dl>${info(t('visit.exam'), v.exam)}${info(t('visit.diagnosis'), v.diagnosis)}${info(t('tpl.prescription'), v.treatment)}${info(t('visit.notes'), v.notes)}</dl>
             </article>`).join('') || `<p class="muted">${esc(t('patient.no_visits'))}</p>`}
         </div>
       </section>
@@ -438,22 +467,68 @@ async function viewPatient(main, id) {
           </div>
         </section>
         <section class="card">
-          <header class="card-head"><h2>${esc(t('patient.summary'))}</h2></header>
-          <dl class="summary">
-            ${info(t('patient.conditions'), p.conditions)}${info(t('patient.medications'), p.medications)}
-            ${info(t('patient.surgical_history'), p.surgical_history)}${info(t('patient.family_history'), p.family_history)}
-            ${info(t('patient.profession'), p.profession)}${info(t('patient.address'), p.address)}${info(t('patient.notes'), p.notes)}
-          </dl>
+          <header class="card-head"><h2>${esc(t('patient.section.history'))}</h2>
+            <a class="btn small ghost" href="#/patients/${p.id}/edit">${esc(t('common.edit'))}</a></header>
+          ${renderHistory(p)}
+          <dl class="summary extra">${info(t('patient.profession'), p.profession)}${info(t('patient.address'), p.address)}${info(t('patient.notes'), p.notes)}</dl>
         </section>
       </div>
     </div>`;
 
-  $('#new-visit').onclick = () => visitModal({ patientId: p.id, onDone: reload });
+  $('#new-visit').onclick = $('#new-visit-2').onclick = () => visitModal({ patientId: p.id, onDone: reload });
+  let allRows = false;
+  const drawFollowup = () => {
+    $('#rows-toggle').textContent = t(allRows ? 'patient.show_filled_rows' : 'patient.show_all_rows');
+    $('#rows-toggle').hidden = !visits.length;
+    $('#followup').innerHTML = visits.length ? renderFollowup(followupRows(visits, allRows), [...visits].reverse())
+      : `<p class="muted">${esc(t('patient.no_followup'))}</p>`;
+    $$('[data-cell]', $('#followup')).forEach((c) => (c.onclick = () => {
+      const [vid, name] = c.dataset.cell.split('|');
+      visitModal({ patientId: p.id, visit: visits.find((v) => String(v.id) === vid), focus: name, onDone: reload });
+    }));
+    const scroller = $('#followup .fu-scroll');
+    if (scroller) scroller.scrollLeft = scroller.scrollWidth;   // newest consultation in view, like the end of the Excel row
+  };
+  $('#rows-toggle').onclick = () => { allRows = !allRows; drawFollowup(); };
+  window.redrawFollowup = drawFollowup;   // lets a design re-render it (e.g. tab switches)
+  drawFollowup();
   $$('[data-edit-visit]', main).forEach((b) => (b.onclick = () =>
     visitModal({ patientId: p.id, visit: visits.find((v) => String(v.id) === b.dataset.editVisit), onDone: reload })));
   $('#new-appt').onclick = () => apptModal({ patient: p, onDone: reload });
   $$('[data-appt]', main).forEach((b) => (b.onclick = () =>
     apptModal({ appt: { ...appointments.find((a) => String(a.id) === b.dataset.appt), first_name: p.first_name, last_name: p.last_name }, onDone: reload })));
+}
+
+// ---------------------------------------------------------------- the doctor's sheet: history + follow-up grid
+function renderHistory(p) {
+  return `<table class="hist"><tbody>${HISTORY_ITEMS.map((h) => {
+    const v = historyValue(p, h);
+    return `<tr><th>${esc(h[1])}</th><td>${v ? multiline(v) : '<span class="muted">—</span>'}</td></tr>`;
+  }).join('')}</tbody></table>`;
+}
+
+// Rows of the follow-up grid: [{ section, key, label, name, values: [{ visit, value }] }], oldest visit first.
+function followupRows(visits, all) {
+  const chrono = [...visits].reverse();
+  const rows = [
+    ...LAB_TESTS.map(([k, label]) => ({ section: 'lab', key: k, label, name: 'labs.' + k, get: (v) => (v.labs || {})[k] })),
+    ...RADIO_ITEMS.map(([k, label]) => ({ section: 'radio', key: k, label: label || t('tpl.other'), name: 'radio.' + k, get: (v) => (v.radio || {})[k] })),
+    { section: 'prescription', key: 'rx', label: t('tpl.prescription'), name: 'treatment', get: (v) => v.treatment },
+  ].map((r) => ({ ...r, values: chrono.map((v) => ({ visit: v, value: r.get(v) || '' })) }));
+  return all ? rows : rows.filter((r) => r.values.some((x) => x.value));
+}
+const FU_SECTIONS = () => [['lab', t('tpl.lab')], ['radio', t('tpl.radio')], ['prescription', t('tpl.prescription')]];
+
+// Default layout: a spreadsheet, one column per consultation (like the Excel template).
+function renderFollowup(rows, chrono) {
+  const head = chrono.map((v) => `<th>${esc(fmtDay(v.date, { day: '2-digit', month: 'short', year: '2-digit' }))}</th>`).join('');
+  const body = FU_SECTIONS().map(([sec, title]) => {
+    const rs = rows.filter((r) => r.section === sec);
+    if (!rs.length) return '';
+    return `<tr class="fu-sec"><th colspan="${chrono.length + 1}"><span>${esc(title)}</span></th></tr>` + rs.map((r) =>
+      `<tr><th>${esc(r.label)}</th>${r.values.map((x) => `<td data-cell="${x.visit.id}|${r.name}">${x.value ? multiline(x.value) : ''}</td>`).join('')}</tr>`).join('');
+  }).join('');
+  return `<div class="fu-scroll"><table class="fu"><thead><tr><th></th>${head}</tr></thead><tbody>${body}</tbody></table></div>`;
 }
 
 // ---------------------------------------------------------------- views: agenda

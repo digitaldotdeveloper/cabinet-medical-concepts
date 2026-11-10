@@ -3,7 +3,7 @@
 // so the static GitHub Pages copy works with no server. All three concepts share one origin,
 // so they share this one demo database. Patients are fictional.
 (() => {
-  const KEY = 'cabinet-demo-db-v1';
+  const KEY = 'cabinet-demo-db-v2';   // v2: Excel-template fields (tiers payant, history, labs, radio)
   const now = () => new Date().toISOString();
   const fold = (s) => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
   const day = (offset) => { const d = new Date(); d.setDate(d.getDate() + offset); return d.toISOString().slice(0, 10); };
@@ -27,15 +27,47 @@
     const db = { seq: { patients: 0, visits: 0, appointments: 0 }, patients: [], visits: [], appointments: [],
       settings: { lang: 'fr', cal_token: 'demo', cal_privacy: 'initials', specialty: 'Médecine générale',
         address: 'Rue Principale, Beyrouth', phone: '+961 1 000 000' } };
+    const TP = ['CNSS', 'AXA', 'Allianz', 'Bupa', '', 'CNSS', 'Mutuelle', '', 'AXA', 'CNSS', '', 'Mutuelle'];
+    const HIST = [
+      { smoking: '1 paquet/j depuis 20 ans', diabetes: 'Type 2 depuis 2015', hta: 'Oui, depuis 2012', lipids: 'LDL limite' },
+      { smoking: 'Non', diabetes: 'Non', hta: 'Non' },
+      { smoking: 'Ancien fumeur (arrêt 2010)', hta: 'Oui', lipids: 'Oui', bone: 'Ostéopénie' },
+      { smoking: 'Non', thyroid: 'Nodule bénin 2020' },
+      { smoking: 'Narguilé le week-end', lipids: 'Hypercholestérolémie' },
+      { smoking: 'Non' },
+      { smoking: '2 paquets/j', hta: 'Oui', bone: 'Arthrose lombaire' },
+      {},
+      { diabetes: 'Prédiabète', hta: 'Non', lipids: 'TG élevés' },
+      { thyroid: 'Hypothyroïdie (Hashimoto)', bone: 'Ostéoporose' },
+      { smoking: 'Non' },
+      { hta: 'Oui', bone: 'Gonarthrose bilatérale', diabetes: 'Non' },
+    ];
+    const PSH = ['Appendicectomie 1990', '', 'Pontage 2018', '', 'Hernie inguinale 2011', '', 'Cholécystectomie 2005', '', '', 'Thyroïdectomie partielle 2016', '', 'Prothèse hanche D 2019'];
+    const FAM = ['Père diabétique', 'Mère asthmatique', 'Frère IDM à 55 ans', 'Mère migraineuse', 'Père HTA', '', 'Père BPCO', '', 'Mère goutte', 'Sœur thyroïde', '', 'Mère ostéoporose'];
     P.forEach((r, i) => {
       const id = ++db.seq.patients;
       db.patients.push({ id, file_no: String(id).padStart(5, '0'), first_name: r[0], last_name: r[1], sex: r[2], dob: r[3],
         phone: r[4], email: null, address: 'Beyrouth', profession: r[5], blood_type: r[6], allergies: r[7] || null,
-        conditions: r[8] || null, surgical_history: null, family_history: null, medications: r[9] || null, notes: null,
+        conditions: r[8] || null, surgical_history: PSH[i] || null, family_history: FAM[i] || null, medications: r[9] || null, notes: null,
+        tiers_payant: TP[i] || null, history: HIST[i],
         created_at: now(), updated_at: new Date(Date.now() - i * 3600e3).toISOString() });
     });
+    const LABS = {
+      1: [{ glucose: '1.25', hba1c: '6.9', creat: '10.1', k: '4.4' }, { glucose: '1.12', hba1c: '7.8', creat: '9.9', k: '4.2' }, { glucose: '1.42', hba1c: '7.4', ct: '2.10', tg: '1.80', hdl: '0.42', ldl: '1.32', creat: '9.8' }],  // visit order: -2, -150, -60 days
+      2: [{ cbc: 'GB 11 200', esr: '28' }],
+      3: [{ creat: '12.4', k: '4.9', tsh: '2.1', ck: '140' }],
+      4: [{ cbc: 'Normal', vitd: '18', b12: '310' }],
+      5: [{ ct: '2.45', tg: '2.10', hdl: '0.38', ldl: '1.60', sgpt: '32', sgot: '28' }],
+      7: [{ cbc: 'GB 13 400', esr: '42', creat: '11.0' }],
+      9: [{ uree: '0.45', creat: '10.5', acr: '25', urine: 'Cristaux urates' }],
+      10: [{ tsh: '3.2', ft4: '1.1', us_thyroid: 'Lobe D post-op, RAS' }],
+      12: [{ vitd: '22', ca: '9.4' }],
+    };
+    const RADIO = { 3: [{ other: 'Écho cœur : FEVG 55 %' }], 7: [{ other: 'Radio thorax : distension' }], 12: [{ mri: 'IRM genou G : gonarthrose stade III' }] };
+    const seen = {};
     const V = [
       [1, -2, 'Contrôle tension', '145/90', '78', '36.8', '88', 'Bon état général', 'HTA mal contrôlée', 'Amlodipine passée à 10 mg'],
+      [1, -150, 'Suivi diabète', '150/92', '80', '36.8', '91', '', 'Diabète déséquilibré', 'Metformine 850 mg x2'],
       [1, -60, 'Bilan diabète', '138/85', '74', '36.7', '89', 'Examen des pieds normal', 'Diabète type 2 équilibré', 'HbA1c dans 3 mois'],
       [2, -5, 'Toux depuis 1 semaine', '118/72', '82', '37.9', '61', 'Sibilants bilatéraux', 'Bronchite asthmatiforme', 'Corticoïde inhalé 10 jours'],
       [3, -14, 'Palpitations', '132/80', '96', '36.6', '74', 'Rythme irrégulier', 'FA connue', 'Poursuite apixaban, ECG fait'],
@@ -46,9 +78,12 @@
       [10, -45, 'Suivi thyroïde', '115/70', '66', '36.5', '63', '', 'TSH normale', 'Même dose'],
       [12, -7, 'Douleur genou', '135/80', '72', '36.6', '70', 'Crépitations', 'Gonarthrose', 'Kiné 10 séances'],
     ];
-    V.forEach((v) => db.visits.push({ id: ++db.seq.visits, patient_id: v[0], date: day(v[1]), reason: v[2], bp: v[3], pulse: v[4],
-      temp: v[5], weight: v[6], height: null, exam: v[7] || null, diagnosis: v[8], treatment: v[9], notes: null,
-      created_at: now(), updated_at: now() }));
+    V.forEach((v) => {
+      const n = seen[v[0]] = (seen[v[0]] || 0) + 1;
+      db.visits.push({ id: ++db.seq.visits, patient_id: v[0], date: day(v[1]), reason: v[2], bp: v[3], pulse: v[4],
+        temp: v[5], weight: v[6], height: null, exam: v[7] || null, diagnosis: v[8], treatment: v[9], notes: null,
+        labs: (LABS[v[0]] || [])[n - 1] || {}, radio: (RADIO[v[0]] || [])[n - 1] || {}, created_at: now(), updated_at: now() });
+    });
     const A = [[1, 0, 9, 0], [4, 0, 10, 30], [7, 0, 11, 15], [11, 0, 15, 0], [2, 1, 9, 30], [6, 1, 14, 0],
       [9, 2, 10, 0], [3, 3, 16, 30], [10, 4, 9, 0], [12, 4, 11, 30]];
     A.forEach((a) => db.appointments.push({ id: ++db.seq.appointments, uid: 'demo-' + db.seq.appointments, patient_id: a[0],
@@ -65,15 +100,24 @@
 
   class HttpError extends Error { constructor(s, m) { super(m); this.status = s; } }
   const bad = (m) => { throw new HttpError(400, m); };
-  const pick = (body, fields) => { const o = {}; for (const f of fields) if (body[f] !== undefined) o[f] = body[f] === '' || body[f] === null ? null : typeof body[f] === 'number' ? body[f] : String(body[f]).trim() || null; return o; };
-  const PF = ['file_no', 'first_name', 'last_name', 'sex', 'dob', 'phone', 'email', 'address', 'profession', 'blood_type', 'allergies', 'conditions', 'surgical_history', 'family_history', 'medications', 'notes'];
-  const VF = ['date', 'reason', 'bp', 'pulse', 'temp', 'weight', 'height', 'exam', 'diagnosis', 'treatment', 'notes'];
+  const clean = (v) => Object.fromEntries(Object.entries(v).filter(([, x]) => x != null && String(x).trim() !== '').map(([k, x]) => [k, String(x).trim()]));
+  const pick = (body, fields) => {
+    const o = {};
+    for (const f of fields) {
+      const v = body[f];
+      if (v === undefined) continue;
+      o[f] = v && typeof v === 'object' ? clean(v) : v === '' || v === null ? null : typeof v === 'number' ? v : String(v).trim() || null;
+    }
+    return o;
+  };
+  const PF = ['file_no', 'first_name', 'last_name', 'sex', 'dob', 'phone', 'email', 'address', 'profession', 'blood_type', 'allergies', 'conditions', 'surgical_history', 'family_history', 'medications', 'notes', 'tiers_payant', 'history'];
+  const VF = ['date', 'reason', 'bp', 'pulse', 'temp', 'weight', 'height', 'exam', 'diagnosis', 'treatment', 'notes', 'labs', 'radio'];
   const AF = ['patient_id', 'start', 'duration', 'title', 'notes', 'status'];
   const SET = ['doctor_name', 'specialty', 'address', 'phone', 'email', 'reg_no', 'lang', 'cal_name', 'cal_privacy'];
   const pat = (id) => db.patients.find((p) => p.id === Number(id)) || (() => { throw new HttpError(404, 'not_found'); })();
   const search = (p) => fold([p.last_name, p.first_name, p.file_no, p.phone, String(p.phone || '').replace(/\D/g, ''), p.dob, p.email].join(' '));
   const lastVisit = (id) => db.visits.filter((v) => v.patient_id === id).map((v) => v.date).sort().pop() || null;
-  const brief = (p) => ({ id: p.id, file_no: p.file_no, first_name: p.first_name, last_name: p.last_name, sex: p.sex, dob: p.dob, phone: p.phone, allergies: p.allergies, last_visit: lastVisit(p.id) });
+  const brief = (p) => ({ id: p.id, file_no: p.file_no, first_name: p.first_name, last_name: p.last_name, sex: p.sex, dob: p.dob, phone: p.phone, allergies: p.allergies, tiers_payant: p.tiers_payant, last_visit: lastVisit(p.id) });
   const cleanAppt = (body, partial) => {
     const a = pick(body, AF);
     if ('start' in a || !partial) { const d = new Date(a.start); if (isNaN(d)) bad('start_required'); a.start = d.toISOString(); }

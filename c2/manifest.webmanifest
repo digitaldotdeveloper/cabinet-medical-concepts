@@ -1,11 +1,11 @@
 {
-  "name": "Cabinet Médical · Marine",
+  "name": "Cabinet Médical · Oasis",
   "short_name": "Cabinet",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#eef2f7",
-  "theme_color": "#0e2547",
+  "background_color": "#fbf5ea",
+  "theme_color": "#264653",
   "icons": [
     {
       "src": "icon-192.png",

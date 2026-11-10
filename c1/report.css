@@ -30,6 +30,11 @@ dd { margin: 0; }
 .vitals { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 9pt; margin-bottom: 4px; }
 .vitals b { color: #6b7280; font-weight: 600; }
 .muted { color: #6b7280; }
+table.grid { width: 100%; border-collapse: collapse; font-size: 9pt; margin-bottom: 8px; break-inside: avoid; }
+table.grid th, table.grid td { border: 1px solid #d1d5db; padding: 3px 5px; text-align: left; vertical-align: top; }
+table.grid thead th { background: #f3f4f6; }
+table.grid tbody th { width: 30mm; font-weight: 600; }
+table.grid tr.sec th { background: #f0fdfa; color: #0f766e; text-transform: uppercase; letter-spacing: .05em; font-size: 8pt; }
 .sign { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 24px; break-inside: avoid; }
 .sigbox { width: 65mm; height: 28mm; border: 1px solid #d1d5db; border-radius: 6px; padding: 5px 8px; font-size: 8.5pt; color: #6b7280; }
 .confidential { margin-top: 14px; text-align: center; font-size: 8pt; color: #9ca3af; }

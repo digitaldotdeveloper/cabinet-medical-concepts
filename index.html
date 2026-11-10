@@ -12,37 +12,40 @@ h1 { font-size:2rem; margin:0 0 .3rem; letter-spacing:-.02em } .lead { color:var
 .card:hover { transform:translateY(-3px); box-shadow:0 14px 34px rgba(0,0,0,.08); border-color:var(--t) }
 .card img { border-radius:22px; margin-bottom:.6rem; box-shadow:0 6px 18px rgba(0,0,0,.12) }
 .num { font-size:.75rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--muted) }
-h2 { margin:0; font-size:1.5rem } p { margin:0; color:var(--muted) } p span { opacity:.8 }
+h2 { margin:0; font-size:1.5rem } p { margin:0; color:var(--muted) } p span { opacity:.8 } p.layout { color:var(--text); font-weight:700 }
 .sw { display:flex; gap:6px; margin:.8rem 0 .4rem } .sw i { width:30px; height:30px; border-radius:50%; border:1px solid rgba(0,0,0,.08) }
 .go { margin-top:auto; padding-top:.6rem; font-weight:700; color:var(--t) }
 @media (prefers-color-scheme: dark) { .go { color:var(--text) } }
 .note { margin-top:2rem; color:var(--muted); font-size:.85rem }
 </style></head><body><main>
 <h1>Cabinet Médical: design concepts</h1>
-<p class="lead">Three looks for the same app, each with its own colors, type, logo and icon. Open one and click around: all three share the same demo patients, so a change in one shows up in the others.</p>
+<p class="lead">Three different ways to use the same app: a sidebar with tables, a top menu with cards, and a phone-style bottom dock with tiles. Each has its own colors, type, icon, animations and phone layout. All three share the same demo patients, so a change in one shows up in the others.</p>
 <div class="grid">
-  <a class="card" href="c1/" style="--t:#4d7559">
+  <a class="card" href="c1/" style="--t:#283618">
     <img src="c1/icon-512.png" alt="" width="96" height="96">
     <div class="num">Concept 1</div>
     <h2>Sauge</h2>
-    <p>Calme et classique · <span>Calm and classic</span></p>
-    <div class="sw"><i style="background:#f4f0e6"></i><i style="background:#fffdf7"></i><i style="background:#4d7559"></i><i style="background:#a65a4e"></i><i style="background:#1e2a22"></i></div>
+    <p class="layout">Barre latérale · tableaux · <span>Left sidebar · tables</span></p>
+    <p>Dense et précis, comme un tableur · <span>Dense and precise, like a spreadsheet</span></p>
+    <div class="sw"><i style="background:#283618"></i><i style="background:#606c38"></i><i style="background:#fefae0"></i><i style="background:#dda15e"></i><i style="background:#bc6c25"></i></div>
     <span class="go">Open ▸</span>
   </a>
-  <a class="card" href="c2/" style="--t:#0e2547">
+  <a class="card" href="c2/" style="--t:#264653">
     <img src="c2/icon-512.png" alt="" width="96" height="96">
     <div class="num">Concept 2</div>
-    <h2>Marine</h2>
-    <p>Net et clinique · <span>Crisp and clinical</span></p>
-    <div class="sw"><i style="background:#0e2547"></i><i style="background:#14315f"></i><i style="background:#ff6a55"></i><i style="background:#eef2f7"></i><i style="background:#ffffff"></i></div>
+    <h2>Oasis</h2>
+    <p class="layout">Menu en haut · cartes · <span>Top menu · cards</span></p>
+    <p>Chaleureux, visuel, en cartes · <span>Warm, visual, card-based</span></p>
+    <div class="sw"><i style="background:#264653"></i><i style="background:#2a9d8f"></i><i style="background:#e9c46a"></i><i style="background:#f4a261"></i><i style="background:#e76f51"></i></div>
     <span class="go">Open ▸</span>
   </a>
-  <a class="card" href="c3/" style="--t:#7a3f98">
+  <a class="card" href="c3/" style="--t:#7b4fa0">
     <img src="c3/icon-512.png" alt="" width="96" height="96">
     <div class="num">Concept 3</div>
     <h2>Lilas</h2>
-    <p>Doux et chaleureux · <span>Soft and warm</span></p>
-    <div class="sw"><i style="background:#f6f1fa"></i><i style="background:#7a3f98"></i><i style="background:#f29a7a"></i><i style="background:#c2477e"></i><i style="background:#2b1e36"></i></div>
+    <p class="layout">Dock en bas · tuiles · <span>Bottom dock · tiles</span></p>
+    <p>Doux, comme une app de téléphone · <span>Soft, like a phone app</span></p>
+    <div class="sw"><i style="background:#cdb4db"></i><i style="background:#ffc8dd"></i><i style="background:#ffafcc"></i><i style="background:#bde0fe"></i><i style="background:#a2d2ff"></i></div>
     <span class="go">Open ▸</span>
   </a></div>
 <p class="note">Demo only: fictional patients, stored in this browser. Nothing is sent anywhere.</p>
