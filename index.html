@@ -1,9 +1,11 @@
 <!doctype html>
 <html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Cabinet Médical · Concepts</title><link rel="icon" href="c1/icon-64.png">
+<script>try { document.documentElement.dataset.theme = localStorage.getItem('theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); } catch { document.documentElement.dataset.theme = 'light'; }</script>
 <style>
-:root { --bg:#f3f2ef; --card:#fff; --text:#16181d; --muted:#6b6f78; --line:#e3e1dc; }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg:#121316; --card:#1b1d22; --text:#ecebe7; --muted:#9a9ea8; --line:#2b2e35; } }
+:root { --bg:#f3f4f6; --card:#fff; --text:#16181d; --muted:#6b6f78; --line:#e3e5e8; }
+:root[data-theme="dark"] { --bg:#0f1115; --card:#181b21; --text:#eceef2; --muted:#9a9ea8; --line:#2b2f37; color-scheme:dark; }
+.tbtn { position:fixed; top:16px; right:16px; border:1px solid var(--line); background:var(--card); color:var(--text); border-radius:99px; padding:.4rem .8rem; font:600 14px system-ui,sans-serif; cursor:pointer; }
 * { box-sizing:border-box } body { margin:0; background:var(--bg); color:var(--text); font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif; }
 main { max-width:1100px; margin:0 auto; padding:48px 16px 64px; }
 h1 { font-size:2rem; margin:0 0 .3rem; letter-spacing:-.02em } .lead { color:var(--muted); margin:0 0 2rem; max-width:60ch }
@@ -15,38 +17,43 @@ h1 { font-size:2rem; margin:0 0 .3rem; letter-spacing:-.02em } .lead { color:var
 h2 { margin:0; font-size:1.5rem } p { margin:0; color:var(--muted) } p span { opacity:.8 } p.layout { color:var(--text); font-weight:700 }
 .sw { display:flex; gap:6px; margin:.8rem 0 .4rem } .sw i { width:30px; height:30px; border-radius:50%; border:1px solid rgba(0,0,0,.08) }
 .go { margin-top:auto; padding-top:.6rem; font-weight:700; color:var(--t) }
-@media (prefers-color-scheme: dark) { .go { color:var(--text) } }
+:root[data-theme="dark"] .go { color:var(--text) }
 .note { margin-top:2rem; color:var(--muted); font-size:.85rem }
-</style></head><body><main>
+</style></head><body><button class="tbtn" id="tb" type="button"></button><main>
 <h1>Cabinet Médical: design concepts</h1>
-<p class="lead">Three different ways to use the same app: a sidebar with tables, a top menu with cards, and a phone-style bottom dock with tiles. Each has its own colors, type, icon, animations and phone layout. All three share the same demo patients, so a change in one shows up in the others.</p>
+<p class="lead">Three different ways to use the same app: a sidebar with tables, a top menu with cards, and a phone-style bottom dock with tiles. Each has its own colors, type, icon, animations and phone layout, in light and dark (☾ button at the top of each). All three share the same demo patients, so a change in one shows up in the others.</p>
 <div class="grid">
-  <a class="card" href="c1/" style="--t:#283618">
+  <a class="card" href="c1/" style="--t:#0f3d2e">
     <img src="c1/icon-512.png" alt="" width="96" height="96">
     <div class="num">Concept 1</div>
     <h2>Sauge</h2>
     <p class="layout">Barre latérale · tableaux · <span>Left sidebar · tables</span></p>
     <p>Dense et précis, comme un tableur · <span>Dense and precise, like a spreadsheet</span></p>
-    <div class="sw"><i style="background:#283618"></i><i style="background:#606c38"></i><i style="background:#fefae0"></i><i style="background:#dda15e"></i><i style="background:#bc6c25"></i></div>
+    <div class="sw"><i style="background:#0f3d2e"></i><i style="background:#12855c"></i><i style="background:#2bc48a"></i><i style="background:#f4f7f5"></i><i style="background:#f5a524"></i></div>
     <span class="go">Open ▸</span>
   </a>
-  <a class="card" href="c2/" style="--t:#264653">
+  <a class="card" href="c2/" style="--t:#0d3b4c">
     <img src="c2/icon-512.png" alt="" width="96" height="96">
     <div class="num">Concept 2</div>
     <h2>Oasis</h2>
     <p class="layout">Menu en haut · cartes · <span>Top menu · cards</span></p>
-    <p>Chaleureux, visuel, en cartes · <span>Warm, visual, card-based</span></p>
-    <div class="sw"><i style="background:#264653"></i><i style="background:#2a9d8f"></i><i style="background:#e9c46a"></i><i style="background:#f4a261"></i><i style="background:#e76f51"></i></div>
+    <p>Clair, visuel, en cartes · <span>Clear, visual, card-based</span></p>
+    <div class="sw"><i style="background:#0d3b4c"></i><i style="background:#0f8f8f"></i><i style="background:#e6f4f1"></i><i style="background:#ffb400"></i><i style="background:#f46036"></i></div>
     <span class="go">Open ▸</span>
   </a>
-  <a class="card" href="c3/" style="--t:#7b4fa0">
+  <a class="card" href="c3/" style="--t:#3f37c9">
     <img src="c3/icon-512.png" alt="" width="96" height="96">
     <div class="num">Concept 3</div>
-    <h2>Lilas</h2>
+    <h2>Iris</h2>
     <p class="layout">Dock en bas · tuiles · <span>Bottom dock · tiles</span></p>
-    <p>Doux, comme une app de téléphone · <span>Soft, like a phone app</span></p>
-    <div class="sw"><i style="background:#cdb4db"></i><i style="background:#ffc8dd"></i><i style="background:#ffafcc"></i><i style="background:#bde0fe"></i><i style="background:#a2d2ff"></i></div>
+    <p>Moderne, comme une app de téléphone · <span>Modern, like a phone app</span></p>
+    <div class="sw"><i style="background:#3f37c9"></i><i style="background:#4361ee"></i><i style="background:#4895ef"></i><i style="background:#4cc9f0"></i><i style="background:#f5f6fb"></i></div>
     <span class="go">Open ▸</span>
   </a></div>
 <p class="note">Demo only: fictional patients, stored in this browser. Nothing is sent anywhere.</p>
-</main></body></html>
+</main><script>
+const tb = document.getElementById('tb'), root = document.documentElement;
+const paint = () => (tb.textContent = root.dataset.theme === 'dark' ? '☀ Light' : '☾ Dark');
+tb.onclick = () => { root.dataset.theme = root.dataset.theme === 'dark' ? 'light' : 'dark'; try { localStorage.setItem('theme', root.dataset.theme); } catch {} paint(); };
+paint();
+</script></body></html>

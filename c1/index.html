@@ -4,11 +4,15 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Cabinet Médical</title>
-  <meta name="theme-color" content="#283618">
+  <meta name="theme-color" content="#0f3d2e">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Cabinet">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <script>
+    // Light/dark before first paint: saved choice, else the device setting.
+    try { document.documentElement.dataset.theme = localStorage.getItem('theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); } catch { document.documentElement.dataset.theme = 'light'; }
+  </script>
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="icon-64.png" type="image/png">
   <link rel="apple-touch-icon" href="icon-180.png">
@@ -20,14 +24,17 @@
 <body class="concept-c1">
 <div class="concept-bar" style="display:flex;align-items:center;gap:.4rem;padding:.35rem 16px;background:#111;color:#bbb;font:600 12px/1.4 system-ui,sans-serif;overflow-x:auto;white-space:nowrap">
   <a href="../" style="color:#fff">◂ Concepts</a><span style="opacity:.4">|</span>
-  <a href="../c1/" style="padding:.15rem .6rem;border-radius:99px;background:#fff;color:#111">1 · Sauge</a><a href="../c2/" style="padding:.15rem .6rem;border-radius:99px;color:#ddd">2 · Oasis</a><a href="../c3/" style="padding:.15rem .6rem;border-radius:99px;color:#ddd">3 · Lilas</a>
+  <a href="../c1/" style="padding:.15rem .6rem;border-radius:99px;background:#fff;color:#111">1 · Sauge</a><a href="../c2/" style="padding:.15rem .6rem;border-radius:99px;color:#ddd">2 · Oasis</a><a href="../c3/" style="padding:.15rem .6rem;border-radius:99px;color:#ddd">3 · Iris</a>
   <span style="flex:1"></span>
   <button type="button" onclick="if(confirm('Reset demo patients?'))cabinetDemoReset()" style="background:none;border:1px solid #444;color:#bbb;border-radius:99px;padding:.1rem .6rem;font:inherit;cursor:pointer">↺ Demo data</button>
 </div>
   <header class="topbar">
     <a class="brand" href="#/"><img class="brand-icon" src="icon-192.png" alt="" width="34" height="34" style="border-radius:10px;display:block"><span class="brand-name">Cabinet<small>Médical</small></span></a>
     <nav id="nav"></nav>
-    <button id="lang" class="lang" type="button" aria-label="Langue / Language">EN</button>
+    <div class="top-tools">
+      <button id="theme" class="lang theme-btn" type="button" aria-label="Mode sombre / Dark mode"></button>
+      <button id="lang" class="lang" type="button" aria-label="Langue / Language">EN</button>
+    </div>
   </header>
   <main id="view" class="container"></main>
   <dialog id="modal"></dialog>

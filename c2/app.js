@@ -715,5 +715,20 @@ $('#lang').onclick = async () => {
   renderShell();
   route();
 };
+// Light / dark switch (the choice is applied before first paint by the snippet in index.html).
+function paintThemeButton() {
+  const dark = document.documentElement.dataset.theme === 'dark';
+  $('#theme').textContent = dark ? '☀' : '☾';
+  $('#theme').title = dark ? (LANG === 'fr' ? 'Mode clair' : 'Light mode') : (LANG === 'fr' ? 'Mode sombre' : 'Dark mode');
+}
+$('#theme').onclick = () => {
+  const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+  document.documentElement.classList.add('theme-anim');
+  document.documentElement.dataset.theme = next;
+  try { localStorage.setItem('theme', next); } catch {}
+  paintThemeButton();
+  setTimeout(() => document.documentElement.classList.remove('theme-anim'), 450);
+};
+paintThemeButton();
 window.addEventListener('hashchange', route);
 boot();
