@@ -1,0 +1,34 @@
+/* Concept 3 — Lilas: soft lilac, plum and peach, rounded and friendly. */
+:root {
+  --bg: #f6f1fa; --surface: #ffffff; --surface-2: #faf6fd; --text: #2b1e36; --muted: #7a6c88; --line: #ece2f3;
+  --accent: #7a3f98; --accent-ink: #ffffff; --accent-soft: #f1e5f8; --peach: #f29a7a; --peach-soft: #fdebe3;
+  --f: #c2477e; --f-soft: #fbe5ef; --m: #4b63c9; --m-soft: #e6eafb; --radius: 24px;
+  --shadow: 0 2px 4px rgba(90, 40, 120, .04), 0 12px 32px rgba(90, 40, 120, .07);
+}
+@media (prefers-color-scheme: dark) { :root {
+  --bg: #17111d; --surface: #211829; --surface-2: #2a1f34; --text: #f1e9f7; --muted: #a596b3; --line: #372a44;
+  --accent: #d1a3ee; --accent-ink: #22132d; --accent-soft: #352446; --peach-soft: #3b231b;
+} }
+body { font-family: "Nunito", -apple-system, "Segoe UI", sans-serif; background:
+  radial-gradient(900px 500px at 100% -10%, color-mix(in srgb, var(--peach) 18%, transparent), transparent 60%),
+  radial-gradient(800px 500px at -10% 0%, color-mix(in srgb, var(--accent) 12%, transparent), transparent 60%), var(--bg);
+  background-attachment: fixed; }
+h1 { font-weight: 900; font-size: 2rem; }
+h2 { font-weight: 800; }
+.topbar { background: color-mix(in srgb, var(--surface) 70%, transparent); border-bottom: 0; }
+.brand-name { font-weight: 900; font-size: 1.3rem; letter-spacing: -.02em; color: var(--accent); text-transform: lowercase; }
+.brand-name small { display: none; }
+#nav a { border-radius: 99px; }
+#nav a.active { background: var(--accent); color: var(--accent-ink); }
+.btn, input, select, textarea { border-radius: 16px; }
+.btn.primary { background: linear-gradient(135deg, var(--accent), color-mix(in srgb, var(--accent) 70%, var(--peach))); border: 0; }
+.searchbar input { border-radius: 99px; border-color: transparent; }
+.avatar { border-radius: 14px; }
+.card { border-color: transparent; }
+.visit { border-left: 0; padding-left: 1rem; position: relative; }
+.visit::before { content: ''; position: absolute; left: 0; top: .55rem; width: 8px; height: 8px; border-radius: 50%; background: var(--peach); }
+@media (max-width: 720px) {
+  .topbar { background: var(--surface); }
+  #nav { margin: 0 12px calc(10px + env(safe-area-inset-bottom)); border-radius: 26px; border: 0; box-shadow: 0 10px 30px rgba(90,40,120,.18); padding: .35rem; }
+  #nav a.active { background: var(--accent-soft); color: var(--accent); }
+}

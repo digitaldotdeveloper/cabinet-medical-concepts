@@ -1,0 +1,22 @@
+/* Concept 1 — Sauge: warm cream, sage green, editorial serif. Calm and classic. */
+:root {
+  --bg: #f4f0e6; --surface: #fffdf7; --surface-2: #f8f4ea; --text: #1e2a22; --muted: #6d7367; --line: #e4ddcc;
+  --accent: #4d7559; --accent-ink: #fffdf7; --accent-soft: #e4ece0; --f: #a65a4e; --f-soft: #f5e4df; --m: #3f6b78; --m-soft: #e0ecef;
+  --danger: #a33a2c; --danger-soft: #f8e3dd; --radius: 18px;
+  --shadow: 0 1px 0 rgba(60, 50, 20, .04), 0 6px 20px rgba(60, 50, 20, .05);
+}
+@media (prefers-color-scheme: dark) { :root {
+  --bg: #161a16; --surface: #1e231e; --surface-2: #252b25; --text: #ece6d8; --muted: #9a9f92; --line: #333a32;
+  --accent: #9cc3a3; --accent-ink: #14201a; --accent-soft: #24342a; --f: #e2a297; --f-soft: #3a2622; --m: #9ac2cc; --m-soft: #1f3035;
+} }
+body { font-family: "Instrument Sans", -apple-system, "Segoe UI", sans-serif; }
+h1, h2, .brand-name { font-family: "Fraunces", Georgia, serif; font-weight: 600; letter-spacing: -.01em; }
+h1 { font-size: 2.1rem; font-weight: 500; }
+.topbar { background: color-mix(in srgb, var(--bg) 88%, transparent); border-bottom-color: var(--line); }
+.brand-name { font-size: 1.35rem; font-weight: 500; }
+.brand-name small { font-family: "Instrument Sans", sans-serif; font-size: .62rem; letter-spacing: .22em; text-transform: uppercase; color: var(--muted); display: block; margin-top: -.15rem; font-weight: 600; }
+#nav a.active { background: transparent; color: var(--accent); box-shadow: inset 0 -2px 0 var(--accent); border-radius: 0; }
+.btn { border-radius: 99px; }
+.btn.primary { box-shadow: 0 2px 8px color-mix(in srgb, var(--accent) 30%, transparent); }
+.visit { border-left-style: dotted; border-left-width: 2px; }
+@media (max-width: 720px) { .topbar { background: var(--bg); } #nav a.active { box-shadow: none; } }

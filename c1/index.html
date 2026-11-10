@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Cabinet Médical</title>
+  <meta name="theme-color" content="#4d7559">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Cabinet">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon-64.png" type="image/png">
+  <link rel="apple-touch-icon" href="icon-180.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400..700&family=Instrument+Sans:wght@400..700&display=swap">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="theme.css">
+</head>
+<body>
+<div class="concept-bar" style="display:flex;align-items:center;gap:.4rem;padding:.35rem 16px;background:#111;color:#bbb;font:600 12px/1.4 system-ui,sans-serif;overflow-x:auto;white-space:nowrap">
+  <a href="../" style="color:#fff">◂ Concepts</a><span style="opacity:.4">|</span>
+  <a href="../c1/" style="padding:.15rem .6rem;border-radius:99px;background:#fff;color:#111">1 · Sauge</a><a href="../c2/" style="padding:.15rem .6rem;border-radius:99px;color:#ddd">2 · Marine</a><a href="../c3/" style="padding:.15rem .6rem;border-radius:99px;color:#ddd">3 · Lilas</a>
+  <span style="flex:1"></span>
+  <button type="button" onclick="if(confirm('Reset demo patients?'))cabinetDemoReset()" style="background:none;border:1px solid #444;color:#bbb;border-radius:99px;padding:.1rem .6rem;font:inherit;cursor:pointer">↺ Demo data</button>
+</div>
+  <header class="topbar">
+    <a class="brand" href="#/"><img class="brand-icon" src="icon-192.png" alt="" width="34" height="34" style="border-radius:10px;display:block"><span class="brand-name">Cabinet<small>Médical</small></span></a>
+    <nav id="nav"></nav>
+    <button id="lang" class="lang" type="button" aria-label="Langue / Language">EN</button>
+  </header>
+  <main id="view" class="container"></main>
+  <dialog id="modal"></dialog>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script src="demo-api.js"></script>
+  <script src="i18n.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
